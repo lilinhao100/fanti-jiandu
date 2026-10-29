@@ -1,0 +1,27 @@
+{
+  "name": "@fjd/cli",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "lilinhao100",
+  "repository": "github:lilinhao100/fanti-jiandu",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "fjd": "./src/index.ts"
+  },
+  "scripts": {
+    "fjd": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"@fjd/cli: no tests (covered by engine tests)\""
+  },
+  "dependencies": {
+    "@fjd/engine": "workspace:*",
+    "fflate": "^0.8.3",
+    "linkedom": "^0.18.14"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "tsx": "latest",
+    "typescript": "^5"
+  }
+}

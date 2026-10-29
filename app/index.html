@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>繁体简读</title>
+    <link rel="icon" href="data:," />
+    <script>
+      // 页面模式（设置里的“浅色/深色”）先于渲染套上，避免闪烁；“自动”不设，跟随系统
+      try {
+        var m = localStorage.getItem('fjd:mode');
+        if (m === 'light' || m === 'dark') document.documentElement.dataset.theme = m;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "繁体简读",
+  "version": "0.1.0",
+  "identifier": "com.fantijiandu.reader",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "main",
+        "title": "繁体简读",
+        "width": 1144,
+        "height": 860,
+        "minWidth": 760,
+        "minHeight": 520,
+        "center": true,
+        "decorations": false,
+        "shadow": true,
+        "resizable": true,
+        "dragDropEnabled": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' blob:; img-src 'self' asset: http://asset.localhost blob: data:; font-src 'self' asset: http://asset.localhost blob: data:; media-src 'self' blob: data:; connect-src 'self' ipc: http://ipc.localhost asset: http://asset.localhost blob: data:; frame-src 'self' blob: data:; child-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'",
+      "devCsp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["$APPDATA/covers/**", "$APPDATA/books/**", "$APPDATA/fonts/**"]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "繁体简读",
+    "shortDescription": "把繁体电子书读成简体",
+    "longDescription": "繁体简读：导入繁体中文电子书，自动转换为简体并修正排版，在 Windows 上舒适阅读。",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "fileAssociations": [
+      {
+        "ext": ["epub"],
+        "name": "EPUB 电子书",
+        "description": "EPUB 电子书",
+        "role": "Viewer",
+        "mimeType": "application/epub+zip"
+      },
+      {
+        "ext": ["mobi"],
+        "name": "MOBI 电子书",
+        "description": "MOBI 电子书",
+        "role": "Viewer"
+      },
+      {
+        "ext": ["azw3"],
+        "name": "AZW3 电子书",
+        "description": "AZW3 电子书",
+        "role": "Viewer"
+      },
+      {
+        "ext": ["fb2"],
+        "name": "FB2 电子书",
+        "description": "FB2 电子书",
+        "role": "Viewer"
+      }
+    ],
+    "windows": {
+      "nsis": {
+        "languages": ["SimpChinese"],
+        "displayLanguageSelector": false,
+        "installMode": "currentUser",
+        "compression": "lzma"
+      }
+    }
+  }
+}

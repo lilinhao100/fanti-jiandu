@@ -1,0 +1,11 @@
+node_modules/
+dist/
+target/
+*.log
+.vite/
+app/src-tauri/gen/
+test-results/
+playwright-report/
+dist-electron/
+release/
+screenshots/

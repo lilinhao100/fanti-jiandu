@@ -1,0 +1,547 @@
+/* 书库窗口。数值来源：docs/DESIGN.md 第 1 节、2.3（窗口按钮） */
+.library {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background: var(--c-window);
+}
+
+/* ---- 自绘标题栏：拖动区 + Windows 窗口按钮 ---- */
+.titlebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  z-index: 5;
+}
+
+.window-controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  z-index: 20;
+}
+
+.wc-btn {
+  width: 46px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-icons);
+  font-size: 10px;
+  line-height: 1;
+  color: var(--c-label);
+}
+
+.wc-btn:hover {
+  background: var(--c-hover);
+}
+
+.wc-btn.close:hover {
+  background: var(--c-danger);
+  color: var(--c-on-accent);
+}
+
+/* ---- 侧边栏：浮在内容上方的玻璃面板 ---- */
+.sidebar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  bottom: 10px;
+  width: 240px;
+  border-radius: var(--radius-sidebar);
+  padding: 0 10px 10px;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-sidebar-glass);
+  backdrop-filter: var(--blur-sidebar);
+  -webkit-backdrop-filter: var(--blur-sidebar);
+  border: 0.5px solid var(--c-glass-border);
+  box-shadow: var(--shadow-glass);
+  z-index: 10;
+}
+
+.sidebar-top {
+  flex: none;
+  height: 44px; /* 留给拖动区 */
+}
+
+/* macOS：红黄绿在侧边栏顶部（图书也是这样），这一条同时是窗口的拖动区（侧边栏盖住了 .titlebar） */
+html[data-os="mac"] .sidebar-top {
+  -webkit-app-region: drag;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+}
+
+.group-name {
+  font: 700 15px/20px var(--font-ui); /* 参考约 15px */
+  padding: 14px 10px 4px;
+}
+
+.item {
+  width: 100%;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  border-radius: var(--radius-button);
+  font: var(--t-sidebar);
+  text-align: left;
+  transition: background var(--dur-fade) var(--ease);
+}
+
+.item:hover:not(.selected) {
+  background: var(--c-hover);
+}
+
+.item.selected {
+  background: var(--c-selected-pill);
+  color: var(--c-selected-pill-text);
+}
+
+/* ---- 内容区：从侧边栏右边缘往右 45px 开始，右侧留 45px ---- */
+.content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 250px; /* 侧边栏 10 + 240 */
+  overflow-y: auto;
+  padding: 0 45px 60px;
+}
+
+.content-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  margin: 0 -45px;
+  padding: 56px 45px 16px;
+  background: linear-gradient(var(--c-window) 78%, transparent);
+}
+
+.content-header h1 {
+  margin: 0;
+  font: var(--t-large-title);
+}
+
+/* 标题到第一行封面顶：162px（采样）；大标题 34/40 后标题块占 112px */
+.content-body {
+  padding-top: 50px;
+}
+
+.library[data-view="home"] .content-body,
+.library[data-view="search"] .content-body {
+  padding-top: 6px;
+}
+
+/* 右上角的玻璃圆形“更多”按钮；在窗口按钮下面，和大标题同一行 */
+.more-fab {
+  position: absolute;
+  top: 54px;
+  right: 45px;
+  z-index: 8;
+}
+
+.importing {
+  color: var(--c-label-2);
+  font: var(--t-callout);
+  padding-bottom: 12px;
+}
+
+/* ---- 封面网格 ---- */
+.grid {
+  display: grid;
+  column-gap: 26px;
+  row-gap: 0;
+  align-items: end; /* 封面一律底部对齐 */
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: 0;
+  padding-bottom: 34px; /* 封面下方：10 + 标签行 20 + 34 = 64，行距 = 封面高 + 64（采样 343） */
+}
+
+.cover-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-radius: var(--radius-cover);
+}
+
+.cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-cover);
+  box-shadow: var(--shadow-cover);
+  overflow: hidden;
+  background: var(--c-hover);
+}
+
+.cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+  -webkit-user-drag: none;
+}
+
+/* 书脊高光（0.4）：左边 0–8px */
+.cover::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 8px;
+  background: linear-gradient(to right, var(--c-spine-hi), var(--c-spine-lo) 3px, transparent 8px);
+  pointer-events: none;
+}
+
+.cover.generated {
+  aspect-ratio: 2 / 3;
+  color: var(--c-cover-ink);
+  padding: 14% 11% 9% 13%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cover.generated .g-title {
+  font-family: var(--font-read-songti);
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+.cover.generated .g-author {
+  font-family: var(--font-read-songti);
+  font-size: 13px;
+  line-height: 1.3;
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-label {
+  height: 20px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--c-label-2);
+  font: var(--t-callout);
+}
+
+.pill-new {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 9px;
+  border-radius: 9px;
+  background: var(--c-new-pill);
+  color: var(--c-on-accent);
+  font: var(--t-caption-strong);
+}
+
+.more-btn {
+  width: 28px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--c-label-2);
+}
+
+.more-btn:hover,
+.more-btn[aria-expanded="true"] {
+  background: var(--c-hover);
+}
+
+/* ---- 列表视图：每行 56px ---- */
+.list {
+  display: flex;
+  flex-direction: column;
+  margin-top: -30px; /* 列表没有封面那么高，标题和第一行之间不用留 58px */
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  border-bottom: 1px solid var(--c-separator);
+  border-radius: 0;
+}
+
+.row:hover {
+  background: var(--c-hover);
+}
+
+.row-main {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 3fr) minmax(0, 2fr) 72px 124px;
+  align-items: center;
+  column-gap: 14px;
+  padding-left: 8px;
+  text-align: left;
+}
+
+.thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+}
+
+.thumb .cover {
+  width: auto;
+  height: 44px;
+  box-shadow: var(--shadow-cover);
+}
+
+.thumb .cover img {
+  width: auto;
+  height: 44px;
+  max-width: 40px;
+  object-fit: cover;
+}
+
+.thumb .cover.generated {
+  width: 29px;
+  padding: 0;
+}
+
+.thumb .cover.generated > span {
+  display: none;
+}
+
+.r-title {
+  font: var(--t-body-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.r-author,
+.r-status,
+.r-date {
+  color: var(--c-label-2);
+  font: var(--t-callout);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row .more-btn {
+  margin: 0 8px;
+}
+
+/* ---- 主页 ---- */
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.section-title {
+  margin: 0 0 12px;
+  font: var(--t-title2);
+}
+
+.continue-row {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  /* 卡片一直滚到窗口右边缘，不在内容区边界处被切掉 */
+  margin-right: -45px;
+  padding-right: 45px;
+}
+
+.continue-card {
+  flex: none;
+  width: 300px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 18px;
+  border-radius: var(--radius-panel);
+  color: var(--c-on-accent);
+  text-align: left;
+  /* 底色是封面平均色（JS 算出来放进 --card-tint），上面叠 20% 白色的渐变 */
+  background:
+    linear-gradient(115deg, transparent 20%, var(--c-card-overlay)),
+    var(--card-tint, var(--c-new-pill));
+  transition: filter var(--dur-fade) var(--ease);
+}
+
+.continue-card:hover {
+  filter: brightness(1.06);
+}
+
+.cc-cover {
+  flex: none;
+  width: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cc-cover .cover {
+  width: auto;
+  max-width: 66px;
+  height: 86px;
+}
+
+.cc-cover .cover img {
+  width: auto;
+  height: 86px;
+  max-width: 66px;
+  object-fit: cover;
+}
+
+.cc-cover .cover.generated {
+  width: 57px;
+  padding: 0;
+}
+
+.cc-cover .cover.generated > span {
+  display: none;
+}
+
+.cc-text {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cc-title {
+  font: var(--t-title3);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cc-author,
+.cc-meta {
+  font: var(--t-callout);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cc-author {
+  opacity: 0.9;
+}
+
+.cc-meta {
+  opacity: 0.7;
+}
+
+/* ---- 搜索 ---- */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(100%, 420px);
+  height: 36px;
+  margin-bottom: 28px;
+  padding: 0 14px;
+  border-radius: 18px;
+  background: var(--c-field);
+  color: var(--c-label-2);
+}
+
+.search-box:focus-within {
+  outline: 2px solid var(--c-accent);
+}
+
+.search-box input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: none;
+  font: var(--t-sidebar);
+  color: var(--c-label);
+  user-select: text;
+}
+
+.search-box input::placeholder {
+  color: var(--c-label-3);
+}
+
+/* ---- 空状态 ---- */
+.empty {
+  height: calc(100vh - 314px);
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--c-label-3);
+}
+
+.empty.compact {
+  height: calc(100vh - 340px);
+}
+
+.empty h2 {
+  margin: 8px 0 0;
+  font: var(--t-title3);
+  color: var(--c-label);
+}
+
+.empty p {
+  margin: 0;
+  font: var(--t-body);
+  color: var(--c-label-2);
+}
+
+.empty .btn {
+  margin-top: 12px;
+}
+
+/* ---- 拖入文件：整个内容区一圈 2px 虚线圆角框 ---- */
+.drop-overlay {
+  position: absolute;
+  top: 38px; /* 让出窗口按钮 */
+  right: 10px;
+  bottom: 10px;
+  left: 260px;
+  border: 2px dashed var(--c-accent);
+  border-radius: var(--radius-sidebar);
+  background: color-mix(in srgb, var(--c-accent) 6%, transparent);
+  pointer-events: none;
+  z-index: 9;
+}

@@ -1,0 +1,162 @@
+/* 设置窗口：600×460，左边分类，右边内容（DESIGN 第 4 节） */
+.settings {
+  width: 600px;
+  height: 460px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  background: var(--c-window);
+  border: 0.5px solid var(--c-glass-border);
+  box-shadow: var(--shadow-glass);
+  animation: pop var(--dur-pop) var(--ease);
+  outline: none;
+}
+
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 52px 10px 10px;
+  background: var(--c-field);
+  border-right: 1px solid var(--c-separator);
+}
+
+.settings-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-head {
+  flex: none;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px 0 24px;
+}
+
+.settings-head h2 {
+  margin: 0;
+  font: var(--t-title3);
+}
+
+.settings-head .icon-btn {
+  width: 28px;
+  height: 28px;
+}
+
+.settings-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 24px 20px;
+}
+
+.s-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--c-separator);
+}
+
+.s-text {
+  min-width: 0;
+}
+
+.s-label {
+  font: var(--t-body);
+}
+
+.s-hint {
+  margin-top: 2px;
+  color: var(--c-label-2);
+  font: var(--t-callout);
+}
+
+.s-value {
+  color: var(--c-label-2);
+  font: var(--t-body);
+  white-space: nowrap;
+}
+
+.s-footnote {
+  margin: 16px 0 0;
+  color: var(--c-label-2);
+  font: var(--t-callout);
+}
+
+.s-group-title {
+  margin: 16px 0 6px;
+  color: var(--c-label-2);
+  font: var(--t-caption-strong);
+}
+
+.s-group-title:first-child {
+  margin-top: 0;
+}
+
+.s-list {
+  margin-bottom: 8px;
+  border: 1px solid var(--c-separator);
+  border-radius: var(--radius-button);
+  overflow: hidden;
+}
+
+.s-option {
+  width: 100%;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  text-align: left;
+  font: var(--t-sidebar);
+}
+
+.s-option + .s-option {
+  border-top: 1px solid var(--c-separator);
+}
+
+.s-option:hover {
+  background: var(--c-hover);
+}
+
+.s-option .s-hint {
+  margin: 0;
+  flex: 1;
+}
+
+.s-option > span:first-child {
+  min-width: 64px;
+}
+
+.s-radio {
+  margin-left: auto;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--c-label-3);
+}
+
+.s-option[aria-checked="true"] .s-radio {
+  border-color: var(--c-accent);
+  background: radial-gradient(circle, var(--c-accent) 0 4px, transparent 4.5px);
+}
+
+.about-head {
+  padding: 4px 0 16px;
+  border-bottom: 1px solid var(--c-separator);
+}
+
+.about-name {
+  margin-bottom: 4px;
+  font: var(--t-large-title);
+}

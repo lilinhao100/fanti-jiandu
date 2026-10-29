@@ -1,0 +1,179 @@
+/*
+ * 设计令牌。数值来源：docs/DESIGN.md 第 0 节。
+ * 全项目的样式只引用这里的令牌，不写裸色值（阅读区的主题配色在 reader/styles.ts，那是注入书内的 CSS，不在此列）。
+ * 深色模式：跟随系统（prefers-color-scheme）；html[data-theme="light"|"dark"] 用来覆盖（设置里的“页面模式”）。
+ * 深色变量要写两份（系统深色 + data-theme="dark"），改动时两处一起改。
+ */
+:root {
+  color-scheme: light;
+
+  /* ---- 字体（0.1） ---- */
+  --font-ui: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  --font-title: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+  --font-read-songti: "Georgia", "SimSun", serif;
+  --font-read-yahei: "Segoe UI", "Microsoft YaHei", sans-serif;
+  --font-read-kaiti: "Georgia", "KaiTi", serif;
+  --font-read-dengxian: "Segoe UI", "DengXian", sans-serif;
+  --font-icons: "Segoe Fluent Icons", "Segoe MDL2 Assets";
+
+  /* ---- 界面字号（0.2） ---- */
+  --t-large-title: 700 34px/40px var(--font-title); /* 参考界面换算 34–38px */
+  --t-title2: 700 17px/22px var(--font-title); /* 主页分区标题（0.2 没有列，取 macOS Title 2） */
+  --t-title3: 600 15px/20px var(--font-ui);
+  --t-headline: 700 13px/16px var(--font-ui);
+  --t-body: 400 13px/16px var(--font-ui);
+  --t-body-strong: 600 13px/16px var(--font-ui);
+  --t-sidebar: 400 14px/18px var(--font-ui);
+  --t-callout: 400 12px/15px var(--font-ui);
+  --t-caption: 400 11px/14px var(--font-ui);
+  --t-caption-strong: 600 11px/14px var(--font-ui);
+
+  /* ---- 颜色·浅色（0.3） ---- */
+  --c-window: #ffffff;
+  --c-label: rgba(0, 0, 0, 0.85);
+  --c-label-2: rgba(60, 60, 67, 0.6);
+  --c-label-3: rgba(60, 60, 67, 0.3);
+  --c-separator: rgba(0, 0, 0, 0.1);
+  --c-accent: #0088ff;
+  --c-sidebar-glass: rgba(249, 249, 249, 0.82);
+  --c-selected-pill: #262626;
+  --c-selected-pill-text: #ffffff;
+  --c-glass: rgba(255, 255, 255, 0.72);
+  --c-glass-border: rgba(0, 0, 0, 0.08);
+  --c-new-pill: #1d4e9e;
+  --c-selection: #cce7fe;
+  --c-ring: #000000; /* 2.5：选中的主题方块的 2px 描边 */
+
+  /* ---- 颜色·补充（DESIGN 没列、但全项目要用的） ---- */
+  --c-on-accent: #ffffff; /* 强调色、深色胶囊、危险色上的文字 */
+  --c-danger: #c42b1c; /* 同 2.3 的关闭按钮悬停色 */
+  --c-hover: rgba(0, 0, 0, 0.06); /* 同 2.3 的窗口按钮悬停色 */
+  --c-press: rgba(0, 0, 0, 0.1);
+  --c-field: rgba(0, 0, 0, 0.05); /* 输入框、分段控件底色 */
+  --c-scrim: rgba(0, 0, 0, 0.25); /* 模态层遮罩 */
+  --c-scroll-thumb: rgba(0, 0, 0, 0.22);
+  --c-switch-off: rgba(120, 120, 128, 0.32);
+  --c-card-overlay: rgba(255, 255, 255, 0.2); /* 主页“继续阅读”卡片：1 节规定的 20% 白色叠加 */
+  --c-cover-ink: #2b2b2b; /* 生成封面上的字 */
+  --c-spine-hi: rgba(255, 255, 255, 0.28); /* 封面书脊高光（0.4） */
+  --c-spine-lo: rgba(0, 0, 0, 0.1);
+
+  /* 高亮颜色（2.8）。深浅色模式相同；正文里的高亮是 SVG，值在 reader/highlightPaint.ts 里还有一份 */
+  --c-hl-yellow: #ffdc00;
+  --c-hl-green: #7ed957;
+  --c-hl-blue: #8db8ff;
+  --c-hl-pink: #ff94b3;
+  --c-hl-purple: #c79bff;
+  --c-hl-underline: #ff383c;
+
+  /* 生成封面的 6 种柔和色（1 节） */
+  --c-cover-1: #e8d5c4;
+  --c-cover-2: #d4e2d4;
+  --c-cover-3: #cfddeb;
+  --c-cover-4: #ebd3d9;
+  --c-cover-5: #ddd3eb;
+  --c-cover-6: #ebe3c2;
+
+  /* ---- 圆角、阴影、毛玻璃（0.4） ---- */
+  --radius-panel: 16px;
+  --radius-sidebar: 18px;
+  --radius-theme: 12px;
+  --radius-button: 10px;
+  --radius-cover: 3px;
+
+  --blur-glass: blur(20px) saturate(180%);
+  --blur-sidebar: blur(24px) saturate(180%);
+  --shadow-glass: 0 1px 2px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-cover: 0 1px 2px rgba(0, 0, 0, 0.1), 0 10px 20px -6px rgba(0, 0, 0, 0.28);
+
+  /* ---- 动效（0.4） ---- */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fade: 180ms;
+  --dur-pop: 200ms;
+  --dur-hide: 240ms;
+}
+
+/* ---- macOS（M4）：界面字体用系统字体，调用系统字体是合法的；阅读字体换成 mac 自带的那几个 ----
+ * html[data-os="mac"] 由 main.tsx 在启动时设置。--font-read-* 与 reader/fonts.ts 的 mac 推荐栈一致（fonts/presets.ts） */
+html[data-os="mac"] {
+  --font-ui: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+  --font-title: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+  --font-read-songti: "Georgia", "Songti SC", "STSong", serif;
+  --font-read-yahei: "PingFang SC", "Helvetica Neue", sans-serif;
+  --font-read-kaiti: "Georgia", "Kaiti SC", "STKaiti", serif;
+  --font-read-dengxian: "Yuanti SC", "PingFang SC", sans-serif;
+}
+
+/* ---- 颜色·深色 ---- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --c-window: #1e1e1e;
+    --c-label: rgba(255, 255, 255, 0.85);
+    --c-label-2: rgba(235, 235, 245, 0.6);
+    --c-label-3: rgba(235, 235, 245, 0.3);
+    --c-separator: rgba(255, 255, 255, 0.12);
+    --c-accent: #0091ff;
+    --c-sidebar-glass: rgba(40, 40, 42, 0.8);
+    --c-selected-pill: #f2f2f2;
+    --c-selected-pill-text: #000000;
+    --c-glass: rgba(44, 44, 48, 0.72);
+    --c-glass-border: rgba(255, 255, 255, 0.1);
+    --c-new-pill: #2f6ac4;
+    --c-selection: rgba(80, 140, 255, 0.45);
+    --c-ring: #ffffff;
+
+    --c-hover: rgba(255, 255, 255, 0.08);
+    --c-press: rgba(255, 255, 255, 0.14);
+    --c-field: rgba(255, 255, 255, 0.08);
+    --c-scrim: rgba(0, 0, 0, 0.5);
+    --c-scroll-thumb: rgba(255, 255, 255, 0.24);
+    --c-switch-off: rgba(120, 120, 128, 0.5);
+    --c-card-overlay: rgba(255, 255, 255, 0.14);
+    --c-spine-hi: rgba(255, 255, 255, 0.2);
+    --c-spine-lo: rgba(0, 0, 0, 0.18);
+
+    --shadow-glass: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4);
+    --shadow-cover: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 20px -6px rgba(0, 0, 0, 0.6);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --c-window: #1e1e1e;
+  --c-label: rgba(255, 255, 255, 0.85);
+  --c-label-2: rgba(235, 235, 245, 0.6);
+  --c-label-3: rgba(235, 235, 245, 0.3);
+  --c-separator: rgba(255, 255, 255, 0.12);
+  --c-accent: #0091ff;
+  --c-sidebar-glass: rgba(40, 40, 42, 0.8);
+  --c-selected-pill: #f2f2f2;
+  --c-selected-pill-text: #000000;
+  --c-glass: rgba(44, 44, 48, 0.72);
+  --c-glass-border: rgba(255, 255, 255, 0.1);
+  --c-new-pill: #2f6ac4;
+  --c-selection: rgba(80, 140, 255, 0.45);
+  --c-ring: #ffffff;
+
+  --c-hover: rgba(255, 255, 255, 0.08);
+  --c-press: rgba(255, 255, 255, 0.14);
+  --c-field: rgba(255, 255, 255, 0.08);
+  --c-scrim: rgba(0, 0, 0, 0.5);
+  --c-scroll-thumb: rgba(255, 255, 255, 0.24);
+  --c-switch-off: rgba(120, 120, 128, 0.5);
+  --c-card-overlay: rgba(255, 255, 255, 0.14);
+  --c-spine-hi: rgba(255, 255, 255, 0.2);
+  --c-spine-lo: rgba(0, 0, 0, 0.18);
+
+  --shadow-glass: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-cover: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 20px -6px rgba(0, 0, 0, 0.6);
+}
+
+/* 系统设置了“减少动画”时，全部改为直接切换（0.4） */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fade: 0ms;
+    --dur-pop: 0ms;
+    --dur-hide: 0ms;
+  }
+}

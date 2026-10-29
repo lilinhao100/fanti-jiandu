@@ -1,0 +1,8 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.epub binary
+*.mobi binary
+*.azw3 binary
+fixtures/books/** binary
+fixtures/txt/** binary
