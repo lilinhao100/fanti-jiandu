@@ -1,8 +1,11 @@
 // M2a：书库窗口与设置的行为、布局数值（DESIGN 第 1、4 节）。截图验收在 screens.spec.ts。
+import fs from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 import { buildEpub, drawCover } from './epubs';
 import { bookPath, importBooks, openCard, patchBook, waitForCards, waitReaderReady } from './helpers';
 import { seedLibrary } from './seed';
+
+const APP_VERSION: string = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 
 test.use({ viewport: { width: 1144, height: 860 }, colorScheme: 'light', deviceScaleFactor: 1 });
 
@@ -180,7 +183,7 @@ test.describe('书库·侧边栏、设置、深色', () => {
     await expect(page.getByRole('radio', { name: /楷体/ })).toHaveAttribute('aria-checked', 'true');
     await expect(page.getByRole('switch', { name: '翻页动画' })).toHaveAttribute('aria-checked', 'true');
     await page.getByRole('button', { name: '关于' }).click();
-    await expect(page.getByTestId('about-version')).toHaveText('0.1.0');
+    await expect(page.getByTestId('about-version')).toHaveText(APP_VERSION);
     await expect(page.getByTestId('about-engine')).toHaveText(/^\d+$/);
     await expect(page.getByTestId('settings')).toContainText('OpenCC');
     await expect(page.getByTestId('settings')).toContainText('foliate-js');

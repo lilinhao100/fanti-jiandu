@@ -599,7 +599,7 @@ html[data-os="mac"] .tb-left {
   color: var(--c-label-3);
 }
 
-/* 字号滑块的行（自定义页顶部，不受“自定义”开关管） */
+/* 字号滑块的行（字体与版式页，字体组里） */
 .ap-size-row {
   padding: 4px 4px 6px;
 }
@@ -851,9 +851,55 @@ html[data-os="mac"] .tb-left {
   font: var(--t-body);
 }
 
-.ap-sliders.off .ap-slider-row,
-.ap-sliders.off .ap-switch-row {
-  opacity: 0.4;
+/* 字体与版式页（M5）：两组，组名 13px、组间 16px；页面最高“窗口高 - 100px”，超出时 .ap-scroll 内部滚动，标题和返回固定 */
+.popover.appearance.page-custom {
+  max-height: calc(100vh - 100px);
+}
+
+.ap-group-label {
+  margin: 16px 0 6px;
+  padding: 0 4px;
+  font: 400 13px/16px var(--font-ui);
+  color: var(--c-label-2);
+}
+
+.ap-group-label.first {
+  margin-top: 0;
+}
+
+.ap-cols {
+  display: flex;
+  align-items: stretch;
+  height: 28px;
+  margin-bottom: 8px;
+  border-radius: 14px;
+  background: var(--c-field);
+  overflow: hidden;
+}
+
+.ap-cols button {
+  flex: 1;
+  font: var(--t-body);
+  transition: background var(--dur-fade) var(--ease);
+}
+
+.ap-cols button + button {
+  border-left: 1px solid var(--c-separator);
+}
+
+.ap-cols button:hover {
+  background: var(--c-hover);
+}
+
+.ap-cols button[aria-checked='true'] {
+  background: var(--c-press);
+  font-weight: 600;
+}
+
+.ap-cols-hint {
+  margin: -2px 4px 8px;
+  font: var(--t-caption);
+  color: var(--c-label-2);
 }
 
 .ap-slider-row {

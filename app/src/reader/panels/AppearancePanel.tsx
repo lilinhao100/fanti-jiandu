@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { APPEARANCE_RANGES, DEFAULT_SETTINGS, FONT_SIZE_RANGE, type Settings } from '../../model';
 import { withShortcut } from '../../lib/shortcuts';
 import { useFonts } from '../../store/fonts';
+import { useReaderStore } from '../../store/reader';
 import { Popover } from '../../ui/Popover';
 import { Slider } from '../../ui/Slider';
 import { Switch } from '../../ui/Switch';
@@ -12,13 +13,19 @@ import { FontPicker } from './FontPicker';
 
 type Appearance = Settings['appearance'];
 
+const COLUMN_OPTIONS: { id: Appearance['columns']; testId: string; label: string }[] = [
+  { id: 'auto', testId: 'auto', label: '自动' },
+  { id: 'one', testId: 'one', label: '单栏' },
+  { id: 'two', testId: 'two', label: '双栏' },
+];
+
 const MODES: { id: Appearance['mode']; label: string; icon: typeof Sun }[] = [
   { id: 'light', label: '浅色', icon: Sun },
   { id: 'dark', label: '深色', icon: Moon },
   { id: 'auto', label: '自动', icon: CircleHalf },
 ];
 
-/** “主题与设置”弹出面板：主页 + 自定义页（DESIGN 2.5）。所有改动立刻写进设置并作用到正文 */
+/** “主题与设置”弹出面板：主页 + 字体与版式页（DESIGN 2.5）。所有改动立刻写进设置并作用到正文 */
 export function AppearancePanel({
   anchor,
   appearance: a,
@@ -33,6 +40,7 @@ export function AppearancePanel({
   const notice = useFonts((s) => s.notice);
   const current = effectiveFont(a);
   const size = a.fontSize;
+  const twoColumns = useReaderStore((st) => st.twoColumns);
 
   // 打开面板时读一遍字体列表（系统字体、导入的字体），并检查设置里的字体还在不在
   useEffect(() => {
@@ -102,7 +110,7 @@ export function AppearancePanel({
           </div>
           <button className="ap-custom" data-testid="appearance-custom" onClick={() => setPage('custom')}>
             <GearSix size={16} />
-            自定义
+            字体与版式
           </button>
         </div>
       ) : page === 'font' || page === 'west' ? (
@@ -131,10 +139,11 @@ export function AppearancePanel({
               <CaretLeft size={14} weight="bold" />
               返回
             </button>
-            <h2 className="ap-title">自定义</h2>
+            <h2 className="ap-title">字体与版式</h2>
           </div>
           <div className="ap-scroll">
             {noticeBar}
+            <div className="ap-group-label first">字体</div>
             <div className="ap-fonts">
               <button data-testid="font-row" onClick={() => setPage('font')}>
                 <span className="label">字体</span>
@@ -153,7 +162,6 @@ export function AppearancePanel({
                 value={size}
                 range={FONT_SIZE_RANGE}
                 show={(v) => `${Math.round(v)}px`}
-                off={false}
                 onChange={(v) => onChange({ fontSize: Math.round(v) })}
               />
             </div>
@@ -161,32 +169,40 @@ export function AppearancePanel({
               <span>粗体文本</span>
               <Switch label="粗体文本" checked={a.bold || a.theme === 'bold'} disabled={a.theme === 'bold'} onChange={(v) => onChange({ bold: v })} />
             </div>
-            <div className="ap-switch-row">
-              <span>自定义</span>
-              <Switch label="自定义" checked={a.custom} onChange={(v) => onChange({ custom: v })} />
+            <div className="ap-group-label">版式</div>
+            <div className="ap-cols" role="radiogroup" aria-label="栏数">
+              {COLUMN_OPTIONS.map((c) => (
+                <button key={c.id} role="radio" aria-checked={a.columns === c.id} data-testid={`columns-${c.testId}`} onClick={() => onChange({ columns: c.id })}>
+                  {c.label}
+                </button>
+              ))}
             </div>
-            <div className={`ap-sliders${a.custom ? '' : ' off'}`}>
-              <SliderRow label="行间距" value={a.lineHeight} range={APPEARANCE_RANGES.lineHeight} show={(v) => v.toFixed(2)} off={!a.custom} onChange={(v) => onChange({ lineHeight: v })} />
-              <SliderRow label="字符间距" value={a.letterSpacing} range={APPEARANCE_RANGES.letterSpacing} show={(v) => `${v.toFixed(2)}em`} off={!a.custom} onChange={(v) => onChange({ letterSpacing: v })} />
-              <SliderRow label="词间距" value={a.wordSpacing} range={APPEARANCE_RANGES.wordSpacing} show={(v) => `${v.toFixed(2)}em`} off={!a.custom} onChange={(v) => onChange({ wordSpacing: v })} />
-              <SliderRow label="页边空白" value={a.margin} range={APPEARANCE_RANGES.margin} show={(v) => `${v.toFixed(2)}×`} off={!a.custom} onChange={(v) => onChange({ margin: v })} />
-              <div className="ap-switch-row">
-                <span>两端对齐</span>
-                <Switch label="两端对齐" checked={a.justify} disabled={!a.custom} onChange={(v) => onChange({ justify: v })} />
+            {a.columns === 'two' && !twoColumns && (
+              <div className="ap-cols-hint" data-testid="columns-hint">
+                窗口太窄，暂时显示为单栏
               </div>
+            )}
+            <SliderRow label="行间距" value={a.lineHeight} range={APPEARANCE_RANGES.lineHeight} show={(v) => v.toFixed(2)} onChange={(v) => onChange({ lineHeight: v })} />
+            <SliderRow label="页边距" value={a.margin} range={APPEARANCE_RANGES.margin} show={(v) => `${v.toFixed(1)}×`} onChange={(v) => onChange({ margin: v })} />
+            <SliderRow label="字符间距" value={a.letterSpacing} range={APPEARANCE_RANGES.letterSpacing} show={(v) => `${v.toFixed(2)}em`} onChange={(v) => onChange({ letterSpacing: v })} />
+            <SliderRow label="词间距" value={a.wordSpacing} range={APPEARANCE_RANGES.wordSpacing} show={(v) => `${v.toFixed(2)}em`} onChange={(v) => onChange({ wordSpacing: v })} />
+            <div className="ap-switch-row">
+              <span>两端对齐</span>
+              <Switch label="两端对齐" checked={a.justify} onChange={(v) => onChange({ justify: v })} />
             </div>
             <button
               className="ap-reset"
               data-testid="appearance-reset"
               onClick={() => {
                 const d = DEFAULT_SETTINGS.appearance;
-                // 还原主题：字体回到主题自带的，粗体和所有自定义项回到默认；主题、字号、页面模式不动
+                // 恢复这一页的所有项：字体回到主题自带的，粗体、栏数和全部版式回到默认；主题、页面模式不动
                 onChange({
                   font: d.font,
                   fontPinned: d.fontPinned,
                   fontWest: d.fontWest,
+                  fontSize: d.fontSize,
                   bold: d.bold,
-                  custom: d.custom,
+                  columns: d.columns,
                   lineHeight: d.lineHeight,
                   letterSpacing: d.letterSpacing,
                   wordSpacing: d.wordSpacing,
@@ -195,7 +211,7 @@ export function AppearancePanel({
                 });
               }}
             >
-              还原主题
+              恢复默认
             </button>
           </div>
         </div>
@@ -209,14 +225,12 @@ function SliderRow({
   value,
   range,
   show,
-  off,
   onChange,
 }: {
   label: string;
   value: number;
   range: { min: number; max: number; step: number };
   show(v: number): string;
-  off: boolean;
   onChange(v: number): void;
 }) {
   return (
@@ -225,7 +239,7 @@ function SliderRow({
         <span>{label}</span>
         <span className="value">{show(value)}</span>
       </div>
-      <Slider value={value} {...range} label={label} disabled={off} onChange={onChange} />
+      <Slider value={value} {...range} label={label} onChange={onChange} />
     </div>
   );
 }

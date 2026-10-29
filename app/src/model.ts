@@ -101,6 +101,9 @@ export function presetRef(id: FontId): FontRef {
   return { id, family: p.family };
 }
 
+export type ColumnsChoice = 'auto' | 'one' | 'two';
+export const COLUMNS_CHOICES: readonly ColumnsChoice[] = ['auto', 'one', 'two'];
+
 export interface Settings {
   appearance: {
     theme: ThemeId;
@@ -117,7 +120,8 @@ export interface Settings {
      */
     fontPinned: boolean;
     bold: boolean;
-    custom: boolean;
+    /** 栏数（M5）：auto = 按窗口宽度，one = 一律单栏，two = 能双栏就双栏 */
+    columns: ColumnsChoice;
     lineHeight: number;
     letterSpacing: number;
     wordSpacing: number;
@@ -145,7 +149,7 @@ export const DEFAULT_SETTINGS: Settings = {
     fontWest: null,
     fontPinned: false,
     bold: false,
-    custom: false,
+    columns: 'auto',
     lineHeight: 1.8,
     letterSpacing: 0.02,
     wordSpacing: 0,
@@ -180,14 +184,21 @@ function normalizeFont(v: unknown, fallback: FontRef): FontRef {
 
 /** 合并存档与默认值（存档可能缺少新增字段，或是旧版格式：font 是字符串、字号存的是档位 fontStep） */
 export function mergeSettings(saved: Partial<Settings> | undefined | null): Settings {
-  const old = (saved?.appearance ?? {}) as Partial<Settings['appearance']> & { fontStep?: number };
-  const appearance = { ...DEFAULT_SETTINGS.appearance, ...saved?.appearance } as Settings['appearance'] & { fontStep?: number };
+  const old = (saved?.appearance ?? {}) as Partial<Settings['appearance']> & { fontStep?: number; custom?: boolean };
+  const appearance = { ...DEFAULT_SETTINGS.appearance, ...saved?.appearance } as Settings['appearance'] & { fontStep?: number; custom?: boolean };
   let size = old.fontSize;
   if (typeof size !== 'number' && typeof old.fontStep === 'number') size = FONT_SIZES[Math.max(0, Math.min(FONT_SIZES.length - 1, Math.round(old.fontStep)))];
   appearance.fontSize = Math.max(FONT_SIZE_RANGE.min, Math.min(FONT_SIZE_RANGE.max, Math.round(typeof size === 'number' && Number.isFinite(size) ? size : DEFAULT_FONT_SIZE)));
   appearance.font = normalizeFont(old.font, DEFAULT_SETTINGS.appearance.font);
   appearance.fontWest = old.fontWest == null ? null : normalizeFont(old.fontWest, DEFAULT_SETTINGS.appearance.font);
   delete appearance.fontStep;
+  // M5：去掉“自定义”开关。开关是关的，说明版式那几项一直没生效，重置回默认，老用户升级后版面不变
+  if (old.custom === false) {
+    const d = DEFAULT_SETTINGS.appearance;
+    Object.assign(appearance, { lineHeight: d.lineHeight, letterSpacing: d.letterSpacing, wordSpacing: d.wordSpacing, margin: d.margin, justify: d.justify });
+  }
+  delete appearance.custom;
+  if (!(COLUMNS_CHOICES as readonly unknown[]).includes(appearance.columns)) appearance.columns = DEFAULT_SETTINGS.appearance.columns;
   return {
     appearance,
     conversion: { ...DEFAULT_SETTINGS.conversion, ...saved?.conversion },

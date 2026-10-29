@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { BOTTOM_MARGIN, computeLayout, ONE_PAGE_MAX_TEXT, TOP_MARGIN, TWO_PAGE_MAX_COLUMN } from './layout';
+import { BOTTOM_MARGIN, computeLayout, ONE_PAGE_MAX_TEXT, TOP_MARGIN, TWO_COL_MIN_WIDTH, TWO_PAGE_MAX_COLUMN } from './layout';
 
 /** 把分页器的几何（paginator.js:690-752 与 CSS 网格）用同样的公式重算一遍，验证属性确实得到想要的版心 */
-function simulate(width: number, height: number, margin = 1) {
-  const l = computeLayout(width, height, margin);
+function simulate(width: number, height: number, margin = 1, columns: 'auto' | 'one' | 'two' = 'auto') {
+  const l = computeLayout(width, height, margin, columns);
   const wide = width - l.inset.left - l.inset.right;
   const g = parseFloat(l.attrs.gap) / 100;
   const maxInline = parseFloat(l.attrs['max-inline-size']);
@@ -80,5 +80,51 @@ describe('computeLayout', () => {
     expect(l.attrs.margin).toBe('52px');
     expect(l.inset.top + parseFloat(l.attrs.margin)).toBe(TOP_MARGIN);
     expect(parseFloat(l.attrs.margin)).toBe(BOTTOM_MARGIN);
+  });
+
+  describe('栏数（M5）', () => {
+    it('auto：规则不变（999 单页，1000 双页）', () => {
+      expect(computeLayout(999, 860, 1, 'auto').two).toBe(false);
+      expect(computeLayout(1000, 860, 1, 'auto').two).toBe(true);
+      expect(computeLayout(1144, 860)).toEqual(computeLayout(1144, 860, 1, 'auto'));
+    });
+
+    it('one：无论多宽都是单栏，版心居中，上限 680', () => {
+      for (const w of [700, 1144, 1920, 2560]) {
+        const { l, divisor, column, outer } = simulate(w, 860, 1, 'one');
+        expect(l.two).toBe(false);
+        expect(l.attrs['max-column-count']).toBe('1');
+        expect(divisor).toBe(1);
+        expect(column).toBeLessThanOrEqual(ONE_PAGE_MAX_TEXT + 0.5);
+        expect(outer * 2 + column).toBeCloseTo(w, 0);
+      }
+      // 页边距 0.5× 时放宽上限为 680/0.5
+      expect(simulate(2560, 1300, 0.5, 'one').column).toBeCloseTo(ONE_PAGE_MAX_TEXT / 0.5, 0);
+    });
+
+    it('two：宽 ≥ 640 且横屏就走双栏分支，外边距和中缝比例与 auto 相同', () => {
+      expect(TWO_COL_MIN_WIDTH).toBe(640);
+      expect(computeLayout(639, 500, 1, 'two').two).toBe(false);
+      expect(computeLayout(640, 500, 1, 'two').two).toBe(true);
+      const a = simulate(900, 700, 1, 'two');
+      expect(a.l.two).toBe(true);
+      expect(a.divisor).toBe(2);
+      expect(a.outer).toBeCloseTo(0.064 * 900, 0);
+      expect(a.gap).toBeCloseTo(0.069 * 900, 0);
+      // 与 auto 在 1144 宽时完全一致
+      expect(computeLayout(1144, 860, 1, 'two')).toEqual(computeLayout(1144, 860, 1, 'auto'));
+      // 页边距倍数照常生效
+      expect(simulate(900, 700, 1.5, 'two').outer).toBeCloseTo(0.064 * 900 * 1.5, 0);
+    });
+
+    it('two：竖屏容器（高 - 20 > 宽）回退单栏，因为分页器在竖屏里强制单栏', () => {
+      expect(computeLayout(800, 1000, 1, 'two').two).toBe(false);
+      expect(computeLayout(800, 820, 1, 'two').two).toBe(true); // 800 宽、高 820：820 - 20 = 800，不算竖屏
+      expect(computeLayout(800, 821, 1, 'two').two).toBe(false);
+    });
+
+    it('two：窄于 640 回退单栏，几何与 auto 的单栏一致', () => {
+      expect(computeLayout(600, 500, 1, 'two')).toEqual(computeLayout(600, 500, 1, 'auto'));
+    });
   });
 });

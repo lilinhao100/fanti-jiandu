@@ -68,15 +68,13 @@ for (const size of SIZES) {
         await page.keyboard.press('Control+d');
         await expect(page.getByTestId('bookmark-button')).toHaveAttribute('aria-pressed', 'false');
 
-        // 外观面板：主页、自定义页
+        // 外观面板：主页、字体与版式页
         await page.getByTestId('appearance-button').click();
         await expect(page.getByTestId('appearance-panel')).toBeVisible();
         await shot(page, 'appearance-main', size.tag, scheme);
         await page.getByTestId('appearance-custom').click();
         await expect(page.getByTestId('appearance-custom-page')).toBeVisible();
         await shot(page, 'appearance-custom', size.tag, scheme);
-        await page.getByRole('switch', { name: '自定义' }).click(); // 打开后滑块才可用
-        await shot(page, 'appearance-custom-on', size.tag, scheme);
         await page.getByTestId('appearance-reset').click();
         await page.getByRole('button', { name: '返回', exact: true }).click();
 

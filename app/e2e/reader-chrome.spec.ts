@@ -144,7 +144,6 @@ test.describe('主题与设置', () => {
     await page.getByTestId('theme-bold').click();
     await sameSpot('主题');
     await page.getByTestId('appearance-custom').click();
-    await page.getByRole('switch', { name: '自定义' }).click();
     await page.getByRole('slider', { name: '行间距' }).fill('2.4');
     await sameSpot('行间距');
   });
@@ -179,7 +178,7 @@ test.describe('主题与设置', () => {
     await expect(page.getByTestId('theme-calm')).toHaveAttribute('aria-checked', 'true');
   });
 
-  test('粗体主题用微软雅黑 700；自选字体覆盖主题字体；还原主题', async ({ page }) => {
+  test('粗体主题用微软雅黑 700；自选字体覆盖主题字体；恢复默认', async ({ page }) => {
     await openReadingBook(page);
     await openAppearance(page);
     await page.getByTestId('theme-bold').click();
@@ -201,13 +200,12 @@ test.describe('主题与设置', () => {
     await expect.poll(() => bodyStyle(page, 'font-weight')).toBe('700');
   });
 
-  test('自定义：开关关闭时滑块是灰的；打开后行距、字符间距、页边空白立刻作用到正文', async ({ page }) => {
+  test('字体与版式：行距、字符间距、页边距立刻作用到正文（没有“自定义”开关，滑块一直可用）', async ({ page }) => {
     await openReadingBook(page);
     await openAppearance(page);
     await page.getByTestId('appearance-custom').click();
+    await expect(page.getByRole('switch', { name: '自定义' })).toHaveCount(0);
     const lh = page.getByRole('slider', { name: '行间距' });
-    await expect(lh).toBeDisabled();
-    await page.getByRole('switch', { name: '自定义' }).click();
     await expect(lh).toBeEnabled();
     await lh.fill('2.4');
     await expect.poll(() => page.evaluate(() => {
@@ -216,9 +214,9 @@ test.describe('主题与设置', () => {
     })).toBe(Math.round(18 * 2.4 * 10));
     await page.getByRole('slider', { name: '字符间距' }).fill('0.1');
     await expect.poll(() => bodyStyle(page, 'letter-spacing')).toBe('1.8px');
-    // 页边空白 1.8×：外边距变大
+    // 页边距 1.8×：外边距变大
     const before = await firstTextLeft(page);
-    await page.getByRole('slider', { name: '页边空白' }).fill('1.8');
+    await page.getByRole('slider', { name: '页边距' }).fill('1.8');
     await expect.poll(() => firstTextLeft(page)).toBeGreaterThan(before + 40);
     // 两端对齐
     await page.getByRole('switch', { name: '两端对齐' }).click();
@@ -226,11 +224,12 @@ test.describe('主题与设置', () => {
       const doc = window.__fjd!.controller.debug.view!.renderer.getContents()[0]!.doc;
       return getComputedStyle(doc.querySelector('p')!).textAlign;
     })).toMatch(/start|left/);
-    // 还原
+    // 恢复默认
     await page.getByTestId('appearance-reset').click();
     await expect.poll(() => bodyStyle(page, 'letter-spacing')).toBe('0.36px');
-    await expect(lh).toBeDisabled();
+    await expect(lh).toBeEnabled();
   });
+
 
   test('页面模式三个按钮：浅色、深色、自动；设置刷新后还在', async ({ page }) => {
     await openReadingBook(page);

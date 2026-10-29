@@ -76,10 +76,16 @@ describe('buildReaderStyles', () => {
     expect(resolvePalette({ ...base, mode: 'auto' }, false).dark).toBe(false);
   });
 
-  it('自定义关闭时忽略行距等自定义值', () => {
-    const a = { ...DEFAULT_SETTINGS.appearance, lineHeight: 2.4, custom: false };
-    expect(buildReaderStyles({ appearance: a, horizontal: true })[1]).toContain('line-height: 1.8 !important');
-    expect(buildReaderStyles({ appearance: { ...a, custom: true }, horizontal: true })[1]).toContain('line-height: 2.4 !important');
+  it('行距、字符间距、词间距、两端对齐不再受任何开关控制（M5），直接用设置里的值', () => {
+    const a = { ...DEFAULT_SETTINGS.appearance, lineHeight: 2.4, letterSpacing: 0.1, wordSpacing: 0.3, justify: false };
+    const after = buildReaderStyles({ appearance: a, horizontal: true })[1];
+    expect(after).toContain('line-height: 2.4 !important');
+    expect(after).toContain('letter-spacing: 0.1em !important');
+    expect(after).toContain('word-spacing: 0.3em !important');
+    expect(after).toContain('text-align: start');
+    const d = buildReaderStyles({ appearance: DEFAULT_SETTINGS.appearance, horizontal: true })[1];
+    expect(d).toContain('line-height: 1.8 !important');
+    expect(d).toContain('text-align: justify');
   });
 
   it('西文字形：中文字体前面先放西文字体（DESIGN 0.1），避免英文和数字落到宋体自带的等宽西文字形上', () => {

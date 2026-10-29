@@ -431,8 +431,9 @@ export class ReaderController {
     const view = this.view;
     const r = view?.renderer;
     if (!view || !r) return;
-    const margin = this.settings.appearance.custom ? this.settings.appearance.margin : 1;
-    const layout = computeLayout(this.host.clientWidth, this.host.clientHeight, margin);
+    const { margin, columns } = this.settings.appearance;
+    const layout = computeLayout(this.host.clientWidth, this.host.clientHeight, margin, columns);
+    if (useReaderStore.getState().twoColumns !== layout.two) useReaderStore.getState().set({ twoColumns: layout.two });
     const animated = this.settings.reading.animated && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     const key = JSON.stringify([layout, animated]);
     if (!force && key === this.layoutKey) return;

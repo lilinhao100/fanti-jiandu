@@ -74,6 +74,8 @@ export interface ReaderState {
   location: { current: number; total: number } | null;
   pagesLeft: number | null;
   fraction: number;
+  /** 现在实际是不是双栏（M5：选了“双栏”但窗口太窄时是 false，面板据此显示提示） */
+  twoColumns: boolean;
   /** 跳转后左下角的“返回”按钮：跳转前的页码 */
   backPage: number | null;
   canGoBack: boolean;
@@ -102,6 +104,7 @@ const initial = {
   location: null,
   pagesLeft: null,
   fraction: 0,
+  twoColumns: false,
   backPage: null,
   canGoBack: false,
   bookmarks: [] as Bookmark[],

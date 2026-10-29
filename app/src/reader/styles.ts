@@ -95,10 +95,7 @@ export function buildReaderStyles(input: ReaderStyleInput): [string, string] {
   const size = fontSizePx(a.fontSize);
   const family = bodyFontFamily(effectiveFont(a), a.fontWest);
   const bold = a.bold || a.theme === 'bold';
-  const lineHeight = a.custom ? a.lineHeight : 1.8;
-  const letterSpacing = a.custom ? a.letterSpacing : 0.02;
-  const wordSpacing = a.custom ? a.wordSpacing : 0;
-  const justify = a.custom ? a.justify : true;
+  const { lineHeight, letterSpacing, wordSpacing, justify } = a;
 
   const before = `
 html { font-family: ${FALLBACK_STACK}; }

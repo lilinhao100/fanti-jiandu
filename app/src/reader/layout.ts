@@ -8,6 +8,8 @@
 
 /** 内容宽度 ≥ 1000px 双页，否则单页（DESIGN 2.1） */
 export const TWO_PAGE_MIN_WIDTH = 1000;
+/** 用户在“栏数”里选了双栏时的最小内容宽（M5）：再窄每栏只剩一两句话，退回单栏 */
+export const TWO_COL_MIN_WIDTH = 640;
 export const TOP_MARGIN = 72;
 export const BOTTOM_MARGIN = 52;
 export const OUTER_RATIO = 0.064;
@@ -35,17 +37,21 @@ export interface Layout {
 const px = (n: number): string => `${Math.round(n * 100) / 100}px`;
 const pct = (r: number): string => `${Math.round(r * 1e6) / 1e4}%`;
 
+export type Columns = 'auto' | 'one' | 'two';
+
 /**
  * @param width  阅读窗口宽（px）
  * @param height 阅读窗口高（px）
- * @param margin “页边空白”倍数 0.5–1.8，默认 1
+ * @param margin “页边距”倍数 0.5–1.8，默认 1
+ * @param columns 栏数（M5）：auto 按窗口宽（≥1000 双栏）；one 一律单栏；two 宽 ≥ 640 且横屏时双栏，否则仍是单栏
  */
-export function computeLayout(width: number, height: number, margin = 1): Layout {
+export function computeLayout(width: number, height: number, margin = 1, columns: Columns = 'auto'): Layout {
   const W = Math.max(1, width);
   const m = Math.max(0.5, Math.min(1.8, margin));
   const top = TOP_MARGIN - BOTTOM_MARGIN;
   // 容器是竖屏（高 > 宽）时，分页器的 CSS 会强制单栏（paginator.js:495），所以竖屏窗口一律单页
-  const two = W >= TWO_PAGE_MIN_WIDTH && height - top <= W;
+  const landscape = height - top <= W;
+  const two = columns === 'one' ? false : columns === 'two' ? W >= TWO_COL_MIN_WIDTH && landscape : W >= TWO_PAGE_MIN_WIDTH && landscape;
 
   if (two) {
     const gutter = GUTTER_RATIO * W;

@@ -18,7 +18,7 @@ export function firstOpenText(o: { version: string; minOs: string }): string {
 
 一、先确认下载对了版本
 
-  · Apple 芯片（M1、M2、M3、M4 等）：下载文件名里带 mac-arm64 的版本。
+  · Apple 芯片（M 系列）：下载文件名里带 mac-arm64 的版本。
   · Intel 芯片：下载文件名里带 mac-x64 的版本。
 
   不确定的话：点屏幕左上角的苹果菜单 → “关于本机”，看“芯片”一栏。

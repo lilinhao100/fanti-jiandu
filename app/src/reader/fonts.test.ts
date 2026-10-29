@@ -242,4 +242,32 @@ describe('设置的存取：{ id, family }，兼容旧存档', () => {
     expect(bad.appearance.fontSize).toBe(48);
     expect(mergeSettings(null).appearance.fontSize).toBe(18);
   });
+  describe('M5 迁移：去掉 custom 开关，新增 columns', () => {
+    const tweaked = { lineHeight: 2.2, letterSpacing: 0.08, wordSpacing: 0.25, margin: 1.5, justify: false };
+    const withOld = (custom: boolean | undefined, extra: object = {}) =>
+      ({ appearance: { ...DEFAULT_SETTINGS.appearance, ...tweaked, ...(custom === undefined ? {} : { custom }), ...extra } }) as unknown as Parameters<typeof mergeSettings>[0];
+    it('custom=false：那几项原来没生效，重置为默认，老用户升级后版面不变；字体等不动', () => {
+      const s = mergeSettings(withOld(false, { fontSize: 26, bold: true }));
+      const d = DEFAULT_SETTINGS.appearance;
+      expect(s.appearance).toMatchObject({ lineHeight: d.lineHeight, letterSpacing: d.letterSpacing, wordSpacing: d.wordSpacing, margin: d.margin, justify: d.justify });
+      expect(s.appearance).toMatchObject({ fontSize: 26, bold: true });
+      expect('custom' in s.appearance).toBe(false);
+    });
+    it('custom=true：保留这些值', () => {
+      const s = mergeSettings(withOld(true));
+      expect(s.appearance).toMatchObject(tweaked);
+      expect('custom' in s.appearance).toBe(false);
+    });
+    it('已经迁移过的存档（没有 custom 字段）原样保留', () => {
+      expect(mergeSettings(withOld(undefined)).appearance).toMatchObject(tweaked);
+    });
+    it('columns：默认 auto；合法值保留；非法值退回 auto', () => {
+      expect(DEFAULT_SETTINGS.appearance.columns).toBe('auto');
+      expect(mergeSettings(null).appearance.columns).toBe('auto');
+      expect(mergeSettings(withOld(true, { columns: 'two' })).appearance.columns).toBe('two');
+      expect(mergeSettings(withOld(true, { columns: 'one' })).appearance.columns).toBe('one');
+      expect(mergeSettings(withOld(true, { columns: 'three' })).appearance.columns).toBe('auto');
+      expect(mergeSettings(withOld(true, { columns: 2 })).appearance.columns).toBe('auto');
+    });
+  });
 });

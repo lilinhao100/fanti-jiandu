@@ -172,7 +172,7 @@ interface Highlight {
 interface BookAnnotations { bookmarks: Bookmark[]; highlights: Highlight[]; history?: string[] }
 interface Settings {
   appearance: { theme: ThemeId; mode: 'light' | 'dark' | 'auto'; fontStep: number; font: FontId;
-    bold: boolean; custom: boolean; lineHeight: number; letterSpacing: number; wordSpacing: number; margin: number; justify: boolean };
+    bold: boolean; columns: 'auto' | 'one' | 'two'; lineHeight: number; letterSpacing: number; wordSpacing: number; margin: number; justify: boolean };
   conversion: { vocabulary: boolean; quotes: boolean; cleanup: boolean; horizontal: boolean };
   library: { view: 'grid' | 'list'; sort: 'recent' | 'title' | 'author' | 'added' };
 }
@@ -213,3 +213,9 @@ interface Settings {
 - Settings.appearance：`font` 由字符串改为 `{ id, family }`（推荐字体 id 为 songti 等，系统字体 `sys:<英文名>`，导入的 `imp:<英文名>`）；`fontStep`（档位下标）改为 `fontSize`（px，12–48）；新增 `fontWest`（西文字体，null = 跟随中文字体）。旧存档在 `mergeSettings` 里迁移。
 - Platform 新增 `listFonts / importFonts / removeFont / fontFaceCss`；`onDataChanged` 的 kind 增加 `fonts`，web 用 BroadcastChannel 实现。web 的 IndexedDB 升到 v2，新增 `fonts` 仓库。
 - 字体文件解析用自写的纯 JS 解析器 `app/src/fonts/sfnt.ts`（只读 name、cmap、OS/2，支持 TTF/OTF/TTC/WOFF/WOFF2），没有新增依赖；Electron 主进程扫描、导入，web 导入共用它。TTC 导入时拆成单个字体（浏览器的 @font-face 不认 TTC）。
+- 0.2.0（版式可调）：
+  - `Settings.appearance`：删掉 `custom`，新增 `columns: 'auto' | 'one' | 'two'`（默认 auto）。`mergeSettings` 迁移旧存档：`custom === false` 时把 lineHeight、letterSpacing、wordSpacing、margin、justify 重置为默认（这几项原来没生效，升级后版面不变），`custom === true` 时保留；非法 `columns` 退回 auto。`styles.ts`、`controller.ts` 不再有 `custom ? x : 默认` 的分支。
+  - `computeLayout(width, height, margin, columns)`：auto 规则不变；one 一律单栏；two 在内容宽 ≥ `TWO_COL_MIN_WIDTH`（640）且横屏时走双栏分支，否则单栏。控制器把实际结果写进 `useReaderStore.twoColumns`，面板据此显示“窗口太窄，暂时显示为单栏”。
+  - 改栏数、页边距等沿用改字号的保位置机制（`applyLayout` 重排后分页器回到锚点），多窗口走现有的 settings 广播。
+  - 竖排（关掉“竖排书改为横排”）不特殊处理：分页器在竖排里按容器高度除以 `max-inline-size` 决定每页几行，`max-column-count` 仍是上限，所以单栏/双栏选择影响的是“竖排文字一页分几段”，不报错。
+  - 外观面板第二页改名“字体与版式”，去掉“自定义”开关，新增栏数分段控件；底部“还原主题”改“恢复默认”，现在连字号、栏数也一起还原。见 DESIGN 2.5、2.7。
