@@ -13,22 +13,10 @@
 
 ## 下载
 
-下载地址：见 Releases
+下载地址：[Releases](https://github.com/lilinhao100/fanti-jiandu/releases)。
 
 - **Windows 10/11（x64）**：解压 zip，双击文件夹里的 `繁体简读.exe`。没有安装程序。首次运行会为当前用户创建快捷方式，并为 `.epub`、`.mobi`、`.azw3`、`.fb2` 注册“打开方式”，在 设置 → 关于 里可以移除。
-- **macOS 13 或更新（Apple 芯片 / Intel）**：下载对应版本的 zip（`mac-arm64` 或 `mac-x64`）。App 没有 Apple 签名，第一次打开要多做两步：
-
-  1. 解压，把“繁体简读”拖进“应用程序”。
-  2. 打开“终端”，执行：
-
-     ```
-     xattr -cr /Applications/繁体简读.app
-     codesign --force --deep --sign - /Applications/繁体简读.app
-     ```
-
-  3. 双击打开。如果仍被拦住，在 系统设置 → 隐私与安全性 里点“仍要打开”。
-
-  两条命令都在你自己的 Mac 上执行，不需要联网。每次更新到新版本后重做一遍。
+- **macOS 13 或更新（Apple 芯片 / Intel）**：下载对应版本的 zip（`mac-arm64` 或 `mac-x64`），解压后把“繁体简读”拖进“应用程序”，双击打开。App 经过苹果签名和公证，第一次打开时系统问“是否打开”，点“打开”即可。
 
 书、封面、标注和设置保存在本机：Windows 在 `%APPDATA%\繁体简读\`，macOS 在 `~/Library/Application Support/繁体简读/`。
 
